@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealTimeChat.Client", "RealTimeChat.Client\RealTimeChat.Client.csproj", "{B8CE93A1-049C-48A7-A44E-84563D3ACF32}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealTimeChat.Server", "RealTimeChat.Server\RealTimeChat.Server.csproj", "{AF4BFA6D-079A-4038-A947-B3DFA14A8EA3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B8CE93A1-049C-48A7-A44E-84563D3ACF32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8CE93A1-049C-48A7-A44E-84563D3ACF32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8CE93A1-049C-48A7-A44E-84563D3ACF32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8CE93A1-049C-48A7-A44E-84563D3ACF32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF4BFA6D-079A-4038-A947-B3DFA14A8EA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF4BFA6D-079A-4038-A947-B3DFA14A8EA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF4BFA6D-079A-4038-A947-B3DFA14A8EA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF4BFA6D-079A-4038-A947-B3DFA14A8EA3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
