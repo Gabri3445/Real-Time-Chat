@@ -9,18 +9,20 @@ namespace RealTimeChat.Server;
  * Words that start with $ can be any UTF-8 alphanumeric value
  * Example communication between the server and client
  * 1. Client sends "/login username" to the server
+ * 1.1 If the username is already used refuse the connection
  * 2. Client gets assigned to default channel
  * 3. Client sends messages which are set to other people on the channel
- * 4 Every message NOT starting with "/" are interpreted as messages
+ * 4 Every message NOT starting with "/" is interpreted as messages
  * 4.1 "/quit" = disconnects the client
  * 4.2 "/channel $channelName" switches the channel
  * 4.3 (To implement) "/whisper $username $message" sends a message privately to the user
- * 4.4 (To implement) "/username $username"
+ * 4.4 (To implement) "/username $username" changes username
  */
 
 internal static class Program
 {
-    private static readonly List<Channel> Channels = new List<Channel>(){new Channel("default")};
+    private static readonly List<Channel> Channels = new(){new Channel("default")};
+    private static readonly List<User> Users = new();
 
     public static async Task Main(string[] args)
     {
