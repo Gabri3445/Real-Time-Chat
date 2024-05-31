@@ -8,8 +8,10 @@ internal static class Program
 {
     private static readonly object Lock = new object();
     private static readonly List<string> Messages = new List<string>();
-    private const string Prompt = "Message :";
+    private const string Prompt = "Message: ";
+    private static int _maxMessages = Console.BufferHeight - 3;
 
+    //Probably best just to make a WPF or blazor app
     public static async Task Main(string[] args)
     {
         var ip = new IPEndPoint(IPAddress.Loopback, 2100);
@@ -24,6 +26,7 @@ internal static class Program
         while (true)
         {
             var userInput = ReadFromBottom(Prompt);
+            await stream.WriteAsync(Encoding.UTF8.GetBytes(userInput));
         }
     }
 
@@ -35,6 +38,15 @@ internal static class Program
             var message = await Read(stream);
             lock (Lock)
             {
+                if (message == "/quit")
+                {
+                    Environment.Exit(0);
+                }
+                _maxMessages = Console.BufferHeight - 3;
+                if (Messages.Count >= _maxMessages)
+                {
+                    Messages.RemoveAt(0);
+                }
                 Messages.Add(message);
                 DisplayMessages();
             }
@@ -47,18 +59,18 @@ internal static class Program
         lock (Lock)
         {
             Console.SetCursorPosition(0, modRow);
-            Console.Write(new string(' ', Console.WindowWidth));
+            Console.Write(new string(' ', Console.WindowWidth)); 
             Console.SetCursorPosition(0, modRow);
             Console.Write(prompt);
         }
 
-        string returnValue = Console.ReadLine() ?? throw new InvalidOperationException();
+        var returnValue = Console.ReadLine() ?? throw new InvalidOperationException();
 
         lock (Lock)
         {
             Console.SetCursorPosition(0, modRow);
-            Console.Write(new string(' ', Console.WindowWidth));
-            DisplayMessages(); 
+            Console.Write(new string(' ', Console.WindowWidth));  
+            DisplayMessages();
         }
 
         return returnValue;
@@ -66,17 +78,20 @@ internal static class Program
 
     private static void DisplayMessages()
     {
-        Console.SetCursorPosition(0, 0);
-
-        foreach (var message in Messages)
+        Console.Clear();
+       
+        for (var i = 0; i < Messages.Count; i++)
         {
-            Console.WriteLine(message);
+            Console.SetCursorPosition(0, i);
+            Console.WriteLine(Messages[i]);
         }
-        
+
+        // Move the cursor back to the input prompt line
         var modRow = Console.BufferHeight - 2;
-        Console.SetCursorPosition(Prompt.Length, modRow);
+        Console.SetCursorPosition(0, modRow);
+        Console.Write(Prompt);
     }
-    
+
     private static async Task<string?> Read(NetworkStream stream)
     {
         var buffer = new byte[1_024];

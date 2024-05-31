@@ -10,6 +10,7 @@ public class User
         _client = client;
         _stream = client.GetStream();
         Username = username;
+        Channel = channel;
     }
 
     public Channel Channel;
@@ -17,7 +18,7 @@ public class User
     private readonly TcpClient _client;
 
     private readonly NetworkStream _stream;
-    public string Username { get; private set; }
+    public string Username { get; }
 
     public async void Send(string message)
     {
