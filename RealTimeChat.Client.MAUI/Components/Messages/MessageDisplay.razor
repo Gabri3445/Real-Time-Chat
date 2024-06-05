@@ -1,7 +1,7 @@
 ﻿@using System.Net.Sockets
 @using System.Text
 @using System.Text.RegularExpressions
-<div class="w-100 h-100 border-top d-flex flex-column justify-content-end">
+<div class="w-100 h-100 border-top d-flex flex-column-reverse overflow-y-scroll">
     @foreach (var message in _messages)
     {
         <Message Sender="@message.Sender" MessageText="@message.Message"></Message>
@@ -45,6 +45,7 @@
             var username = match.Groups["username"].Value;
             var messageText = match.Groups["message"].Value;
             _messages.Add(new MessageProps(username, messageText));
+            _messages.Reverse();
             StateHasChanged();
         }
     }
