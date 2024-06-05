@@ -5,6 +5,12 @@ namespace RealTimeChat.Server;
 
 public class User
 {
+    private readonly TcpClient _client;
+
+    private readonly NetworkStream _stream;
+
+    public Channel Channel;
+
     public User(TcpClient client, string username, Channel channel)
     {
         _client = client;
@@ -13,18 +19,13 @@ public class User
         Channel = channel;
     }
 
-    public Channel Channel;
-
-    private readonly TcpClient _client;
-
-    private readonly NetworkStream _stream;
     public string Username { get; }
 
-    public async void Send(string message)
+    public async Task Send(string message)
     {
         await _stream.WriteAsync(Encoding.UTF8.GetBytes(message));
     }
-    
+
     public void Dispose()
     {
         _stream.Dispose();

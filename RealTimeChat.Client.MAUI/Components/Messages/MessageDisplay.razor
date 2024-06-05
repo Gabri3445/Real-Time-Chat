@@ -1,0 +1,71 @@
+﻿@using System.Net.Sockets
+@using System.Text
+@using System.Text.RegularExpressions
+<div class="w-100 h-100 border-top d-flex flex-column justify-content-end">
+    @foreach (var message in _messages)
+    {
+        <Message Sender="@message.Sender" MessageText="@message.Message"></Message>
+    }
+</div>
+
+@code {
+
+    [Parameter]
+    public TcpClient? TcpClient { get; set; }
+
+    private List<MessageProps> _messages = new();
+
+    private object _lock = new();
+
+    public async Task StartListening()
+    {
+        var stream = TcpClient.GetStream();
+        await ReadMessages(stream);
+    }
+
+    private async Task ReadMessages(NetworkStream stream)
+    {
+        const string pattern = @"(?<channel>[\w\s]+) : \[(?<hour>\d{2}):(?<minute>\d{2})\] - (?<username>[\w_]+): (?<message>.+)";
+        Thread.Sleep(150);
+        while (true)
+        {
+            StateHasChanged();
+            var message = await Read(stream);
+            StateHasChanged();
+
+            if (message == "/quit")
+            {
+    // disconnect from the server
+            }
+            var match = Regex.Match(message, pattern);
+            if (!match.Success) continue;
+            var userChannelName = match.Groups["channel"].Value;
+            var dateHour = match.Groups["hour"].Value;
+            var dateMinute = match.Groups["minute"].Value;
+            var username = match.Groups["username"].Value;
+            var messageText = match.Groups["message"].Value;
+            _messages.Add(new MessageProps(username, messageText));
+            StateHasChanged();
+        }
+    }
+
+    private static async Task<string?> Read(NetworkStream stream)
+    {
+        var buffer = new byte[1_024];
+        var received = await stream.ReadAsync(buffer);
+        return Encoding.UTF8.GetString(buffer, 0, received);
+    }
+
+    class MessageProps
+    {
+        public MessageProps(string sender, string message)
+        {
+            Sender = sender;
+            Message = message;
+        }
+
+        public string Sender { get; }
+        public string Message { get; }
+    }
+
+}

@@ -6,9 +6,9 @@ namespace RealTimeChat.Client;
 
 internal static class Program
 {
-    private static readonly object Lock = new object();
-    private static readonly List<string> Messages = new List<string>();
     private const string Prompt = "Message: ";
+    private static readonly object Lock = new();
+    private static readonly List<string> Messages = new();
     private static int _maxMessages = Console.BufferHeight - 3;
 
     //Probably best just to make a WPF or blazor app
@@ -38,15 +38,9 @@ internal static class Program
             var message = await Read(stream);
             lock (Lock)
             {
-                if (message == "/quit")
-                {
-                    Environment.Exit(0);
-                }
+                if (message == "/quit") Environment.Exit(0);
                 _maxMessages = Console.BufferHeight - 3;
-                if (Messages.Count >= _maxMessages)
-                {
-                    Messages.RemoveAt(0);
-                }
+                if (Messages.Count >= _maxMessages) Messages.RemoveAt(0);
                 Messages.Add(message);
                 DisplayMessages();
             }
@@ -59,7 +53,7 @@ internal static class Program
         lock (Lock)
         {
             Console.SetCursorPosition(0, modRow);
-            Console.Write(new string(' ', Console.WindowWidth)); 
+            Console.Write(new string(' ', Console.WindowWidth));
             Console.SetCursorPosition(0, modRow);
             Console.Write(prompt);
         }
@@ -69,7 +63,7 @@ internal static class Program
         lock (Lock)
         {
             Console.SetCursorPosition(0, modRow);
-            Console.Write(new string(' ', Console.WindowWidth));  
+            Console.Write(new string(' ', Console.WindowWidth));
             DisplayMessages();
         }
 
@@ -79,7 +73,7 @@ internal static class Program
     private static void DisplayMessages()
     {
         Console.Clear();
-       
+
         for (var i = 0; i < Messages.Count; i++)
         {
             Console.SetCursorPosition(0, i);

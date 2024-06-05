@@ -1,0 +1,42 @@
+﻿@using RealTimeChat.Client.MAUI.Components.Pages
+<Modal @ref="modal" HeaderCssClass="dark" Title="Connect to a RealTimeChat Server">
+    <BodyTemplate>
+        <div class="input-group mb-3">
+            <input required @bind="_ip" type="text" class="form-control" placeholder="IP" aria-label="Username">
+            <span class="input-group-text">:</span>
+            <input required @bind="_port" type="number" class="form-control" placeholder="Port" aria-label="Server">
+        </div>
+        <div class="input-group ">
+            <input required @bind="_username" type="text" class="form-control" placeholder="Username" aria-label="Username">
+        </div>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Close</Button>
+        <Button Color="ButtonColor.Primary" @onclick="() => { FormSubmit.InvokeAsync(new Home.ConnectForm(_ip, _port, _username)); OnHideModalClick(); }">Connect</Button>
+    </FooterTemplate>
+</Modal>
+
+<Button Color="ButtonColor.Primary" @onclick="OnShowModalClick">Connect to server</Button>
+
+
+@code {
+    private Modal modal;
+
+    private async Task OnShowModalClick()
+    {
+        await modal.ShowAsync();
+    }
+
+    private async Task OnHideModalClick()
+    {
+        await modal.HideAsync();
+    }
+
+    private string _ip = "";
+    private int _port = 0;
+    private string _username = "";
+
+    [Parameter]
+    public EventCallback<Home.ConnectForm> FormSubmit { get; set; }
+
+}

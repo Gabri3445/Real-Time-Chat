@@ -1,0 +1,14 @@
+﻿<div class="border-top">
+    <div class="fw-bold mb-1">@Sender</div>
+    <div class="mb-1">@MessageText</div>
+</div>
+
+@code {
+
+    [Parameter]
+    public string MessageText { get; set; }
+
+    [Parameter]
+    public string Sender { get; set; }
+
+}

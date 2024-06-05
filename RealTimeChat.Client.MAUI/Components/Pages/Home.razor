@@ -1,0 +1,78 @@
+﻿@page "/"
+@using System.Net.Sockets
+@using System.Text
+@using RealTimeChat.Client.MAUI.Components.Messages
+@using System.Net
+
+<h1 class="h1">Real Time Chat</h1>
+
+<div class="container-fluid h-100">
+    <div class="w-100 d-flex flex-row-reverse mb-4">
+        @if (_isConnected)
+        {
+            //Disconnect button
+        }
+        else
+        {
+            <ConnectButton FormSubmit="ServerConnect"></ConnectButton>
+        }
+    </div>
+    <div class="h-65 border">
+        <MessageDisplay @ref="_messageDisplay" TcpClient="_tcpClient"></MessageDisplay>
+    </div>
+    <div class="d-flex flex-row w-100">
+        <Input></Input>
+    </div>
+</div>
+
+@code
+{
+    private readonly bool _isConnected = false;
+    private TcpClient _tcpClient = new TcpClient();
+    private NetworkStream? _stream;
+    private MessageDisplay _messageDisplay;
+    /*
+     * private int currentCount = 0;
+
+    private async void IncrementCount()
+    {
+
+        new Thread(() =>
+        {
+            Thread.Sleep(500);
+            currentCount += 4;
+            InvokeAsync(StateHasChanged);
+
+    }).Start();
+   
+        currentCount++;
+        
+    }
+     */
+
+    private async Task ServerConnect(ConnectForm ipConnectForm)
+    {
+        var ip = new IPEndPoint(IPAddress.Parse(ipConnectForm.Ip), ipConnectForm.Port);
+        await _tcpClient.ConnectAsync(ip);
+        _stream = _tcpClient.GetStream();
+        await _stream.WriteAsync(Encoding.UTF8.GetBytes($"/login {ipConnectForm.Username}"));
+        await _messageDisplay.StartListening();
+        StateHasChanged();
+    }
+
+    public class ConnectForm
+    {
+        public string Ip { get; }
+
+        public ConnectForm(string ip, int port, string username)
+        {
+            Ip = ip;
+            Port = port;
+            Username = username;
+        }
+
+        public int Port { get; }
+
+        public string Username { get; }
+    }
+}
