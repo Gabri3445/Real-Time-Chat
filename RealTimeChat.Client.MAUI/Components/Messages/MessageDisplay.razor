@@ -19,17 +19,21 @@
 
     public async Task StartListening()
     {
-        var stream = TcpClient.GetStream();
+        var stream = TcpClient?.GetStream();
         await ReadMessages(stream);
     }
 
-    private async Task ReadMessages(NetworkStream stream)
+    private async Task ReadMessages(NetworkStream? stream)
     {
         const string pattern = @"(?<channel>[\w\s]+) : \[(?<hour>\d{2}):(?<minute>\d{2})\] - (?<username>[\w_]+): (?<message>.+)";
         Thread.Sleep(150);
         while (true)
         {
             StateHasChanged();
+            if (stream == null)
+            {
+                return;
+            }
             var message = await Read(stream);
             StateHasChanged();
 

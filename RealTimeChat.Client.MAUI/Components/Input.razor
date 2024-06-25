@@ -1,6 +1,33 @@
-﻿<input class="w-75 form-control" type="text"/>
-<button class="btn btn-primary w-25">Send Message</button>
+﻿<input @onkeydown="KeyPress" @ref="input" class="w-75 form-control mr-2" @bind="_message" type="text" disabled="@(!IsConnected)"/>
+<button class="btn btn-primary" onclick="@OnSubmit" disabled="@(!IsConnected)">Send Message</button>
 
 @code {
+    [Parameter]
+    public bool IsConnected { get; set; }
+    [Parameter]
+    public EventCallback<string> SendMessage { get; set; }
 
+    ElementReference input;
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        StateHasChanged();
+    }
+
+    private string _message = "";
+
+    private async Task OnSubmit()
+    {
+        await input.FocusAsync();
+        await SendMessage.InvokeAsync(_message);
+        _message = "";
+    }
+    
+    private async Task KeyPress(KeyboardEventArgs e)
+    {
+        if (e.Code is "Enter" or "NumpadEnter")
+        {
+            await OnSubmit();
+        }
+    }
 }

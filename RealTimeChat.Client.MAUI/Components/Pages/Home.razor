@@ -7,56 +7,87 @@
 <h1 class="h1">Real Time Chat</h1>
 
 <div class="container-fluid h-100">
+    <Toasts class="p-3" Messages="messages" AutoHide="true" Placement="ToastsPlacement.BottomRight" />
     <div class="w-100 d-flex flex-row-reverse mb-4">
         @if (_isConnected)
         {
-            //Disconnect button
+            <DisconnectButton OnClick="@Disconnect"></DisconnectButton>
         }
         else
         {
-            <ConnectButton FormSubmit="ServerConnect"></ConnectButton>
+            <ConnectButton FormSubmit="@ServerConnect"></ConnectButton>
         }
     </div>
     <div class="h-65 border">
-        <MessageDisplay @ref="_messageDisplay" TcpClient="_tcpClient"></MessageDisplay>
+        <MessageDisplay @ref="@_messageDisplay" TcpClient="@_tcpClient"></MessageDisplay>
     </div>
-    <div class="d-flex flex-row w-100">
-        <Input></Input>
+    <div class="d-flex flex-row w-100 mt-4 justify-content-between">
+        <Input SendMessage="SendMessage" IsConnected="@_isConnected"></Input>
     </div>
 </div>
 
 @code
 {
-    private readonly bool _isConnected = false;
-    private TcpClient _tcpClient = new TcpClient();
+    List<ToastMessage> messages = new List<ToastMessage>();
+
+    private void ShowMessage(ToastType toastType) => messages.Add(CreateToastMessage(toastType));
+
+    private ToastMessage CreateToastMessage(ToastType toastType)
+    => new ToastMessage
+        {
+            Type = toastType,
+            Message = $"Connection error, check the ip address and port number and make sure the username is unique",
+        };
+    private bool _isConnected = false;
+    private TcpClient? _tcpClient = new TcpClient();
     private NetworkStream? _stream;
     private MessageDisplay _messageDisplay;
-    /*
-     * private int currentCount = 0;
+     /*
+    * private int currentCount = 0;
 
     private async void IncrementCount()
-    {
+        {
 
         new Thread(() =>
         {
-            Thread.Sleep(500);
-            currentCount += 4;
-            InvokeAsync(StateHasChanged);
+        Thread.Sleep(500);
+        currentCount += 4;
+        InvokeAsync(StateHasChanged);
 
     }).Start();
-   
-        currentCount++;
-        
+
+    currentCount++;
+
     }
      */
 
+    private async Task SendMessage(string message)
+    {
+        _stream.WriteAsync(Encoding.UTF8.GetBytes(message));
+    }
+
+    private void Disconnect()
+    {
+        _tcpClient?.Dispose();
+        _tcpClient = null;
+        _stream = null;
+    }
+
     private async Task ServerConnect(ConnectForm ipConnectForm)
     {
-        var ip = new IPEndPoint(IPAddress.Parse(ipConnectForm.Ip), ipConnectForm.Port);
-        await _tcpClient.ConnectAsync(ip);
-        _stream = _tcpClient.GetStream();
-        await _stream.WriteAsync(Encoding.UTF8.GetBytes($"/login {ipConnectForm.Username}"));
-        await _messageDisplay.StartListening();
+        try
+        {
+            var ip = new IPEndPoint(IPAddress.Parse(ipConnectForm.Ip), ipConnectForm.Port);
+            await _tcpClient?.ConnectAsync(ip)!;
+            _stream = _tcpClient.GetStream();
+            await _stream.WriteAsync(Encoding.UTF8.GetBytes($"/login {ipConnectForm.Username}"));
+            _ = _messageDisplay.StartListening();
+        } catch (Exception e)
+        {
+            ShowMessage(ToastType.Danger);
+            return;
+        }
+        _isConnected = true;
         StateHasChanged();
     }
 
