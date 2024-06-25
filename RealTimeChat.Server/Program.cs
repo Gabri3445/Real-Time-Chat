@@ -9,7 +9,7 @@ namespace RealTimeChat.Server;
  * Words that start with $ can be any UTF-8 alphanumeric value
  * Example communication between the server and client
  * 1. Client sends "/login username" to the server
- * 1.1 If the username is already used refuse the connection
+ * 1.1 If the username is already used refuse the connection ("/error" is sent to the client)
  * 2. Client gets assigned to default channel
  * 3. Client sends messages which are set to other people on the channel
  * 4 Every message NOT starting with "/" is interpreted as messages
@@ -49,7 +49,7 @@ internal static class Program
             var stream = client.GetStream();
             const string loginPattern = @"/login [a-zA-Z0-9]{1,20}\b";
             const string channelPattern = @"/channel [a-zA-Z0-9]{1,20}\b";
-            var login = await Read(stream); //TODO check that the username is unique
+            var login = await Read(stream);
             if (login is null && !Regex.IsMatch(login!, loginPattern)) return;
             var username = login!.Split(" ")[1];
             if (UserExists(username) != null)
@@ -89,12 +89,14 @@ internal static class Program
                             channel.AddUser(user);
                             user.Channel = channel;
                             user.Channel.SendToAll($"User {username} has joined the {user.Channel.Name} channel");
+                            continue;
                         }
                         else
                         {
                             user.Channel = channelExists;
                             user.Channel.Users.Add(user);
                             user.Channel.SendToAll($"User {username} has joined the {user.Channel.Name} channel");
+                            continue;
                         }
                     }
                     else
